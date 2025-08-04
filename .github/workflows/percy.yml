@@ -1,0 +1,35 @@
+name: Percy Visual Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build and start app
+        run: |
+          npm run build
+          npm start &
+          sleep 5 # espera a que el servidor inicie
+
+      - name: Run Percy visual tests
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+        run: npx percy exec -- npx playwright test
